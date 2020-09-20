@@ -13,16 +13,16 @@ class Kategori extends BaseController
 
 	public function read()
 	{
+		$pager = \Config\Services::pager();
 		$model = new Kategori_M();
-		$kategori = $model -> findAll();
+		//$kategori = $model -> findAll();
 
 		$data =[
-			'judul' => 'SELECT DATA DARI controller',
-			'kategori' => $kategori
+			'judul' => 'DATA KATEGORI',
+			//'kategori' => $kategori
+			'kategori' => $model->paginate(2, 'group1'),
+			'pager' => $model->pager
 		];
-
-
-	
 		return view ("kategori/select",$data);
 		
 	}
@@ -36,29 +36,45 @@ class Kategori extends BaseController
 	}
 	public function insert()
 	{
-		print_r($_POST);
 
 		$model = new Kategori_M();
-		$model -> insert($_POST);
 
-		return redirect ()-> to (base_url()."/admin/kategori");
+		if ($model -> insert($_POST)===false) {
+			$error = $model->errors();
+			session()->setFlashdata('info',$error ['kategori']);
+			return redirect ()-> to (base_url("/admin/kategori/create"));
+		} else {
+			return redirect ()-> to (base_url("/admin/kategori"));
+		}
 	}
 	
 	public function find($id = null)
 	{
-		echo "<h1> update data </h1>";
+		$model = new Kategori_M();
+		$kategori = $model -> find($id);
+
+		$data =[
+			'judul' => 'UPDATE DATA',
+			'kategori' => $kategori
+		];
+
+		return view ("kategori/update",$data);
 	}
 
 	public function update($id = null)
 	{
-		echo "proses update data $id ";
+	
+		$model = new Kategori_M();
+		$model -> save($_POST);
+		return redirect ()-> to (base_url("/admin/kategori"));
+
 	}
 
 	public function delete($id = null)
 	{
 		$model = new Kategori_M();
 		$model -> delete($id);
-		return redirect ()-> to (base_url()."/admin/kategori");
+		return redirect ()-> to (base_url("/admin/kategori"));
 
 	}
 
